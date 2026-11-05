@@ -1,46 +1,51 @@
 <!doctype html>
-<html lang="fa" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>بازی مار | Snake in Python</title>
+<title>Snake in Python</title>
 <meta name="description" content="Snake, written in Python and running in your browser with PyScript.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
 <script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
 <style>
 :root{
   --bg:#f6f5f2; --text:#1c1b19; --muted:#6c675f; --card:#ffffff; --line:#e4e1da;
   --board:#eef3e6; --grid:rgba(0,0,0,.05); --snake:#3f8f4f; --head:#2a6b38; --food:#d9453b;
-  --accent:#2f7d43;
+  --accent:#2f7d43; --bonus:#e0a100; --wall:rgba(0,0,0,.28);
 }
 @media (prefers-color-scheme:dark){
   :root{
     --bg:#121311; --text:#eeeae2; --muted:#9a958b; --card:#1b1c1a; --line:#2c2d2a;
     --board:#171a15; --grid:rgba(255,255,255,.05); --snake:#58b36a; --head:#8fe0a0; --food:#ff6a5e;
-    --accent:#6fcf85;
+    --accent:#6fcf85; --bonus:#ffc933; --wall:rgba(255,255,255,.22);
   }
 }
 *{box-sizing:border-box}
 html,body{margin:0; min-height:100%}
 body{
   background:var(--bg); color:var(--text);
-  font-family:"Vazirmatn",system-ui,sans-serif; line-height:1.6;
+  font-family:"Inter",system-ui,sans-serif; line-height:1.6;
   display:flex; flex-direction:column; align-items:center;
   padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));
   -webkit-user-select:none; user-select:none;
 }
 h1{margin:8px 0 2px; font-size:28px}
 .sub{margin:0 0 16px; color:var(--muted); font-size:14px; text-align:center}
-.sub code{direction:ltr; unicode-bidi:isolate; font-size:13px}
-.stats{display:flex; gap:12px; margin-bottom:12px}
-.stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 18px; text-align:center; min-width:96px}
+.sub code{font-size:13px}
+.stats{display:flex; gap:10px; margin-bottom:10px}
+.stat{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:4px 18px; text-align:center; min-width:86px}
 .stat small{display:block; color:var(--muted); font-size:12px}
 .stat b{font-size:22px}
+.controls{display:flex; gap:8px; margin-bottom:12px}
+.controls button{font:inherit; font-size:13px; color:var(--text); background:var(--card); border:1px solid var(--line);
+  border-radius:10px; padding:4px 14px; cursor:pointer}
+.controls button:hover:not(:disabled){border-color:var(--accent)}
+.controls button:disabled{opacity:.45; cursor:not-allowed}
 
-.stage{position:relative; width:min(480px,100%,max(240px,calc(100dvh - 250px))); aspect-ratio:1; border-radius:16px; overflow:hidden;
+.stage{position:relative; width:min(480px,100%,max(240px,calc(100dvh - 300px))); aspect-ratio:1; border-radius:16px; overflow:hidden;
   border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,.08)}
 canvas{display:block; width:100%; height:100%; touch-action:none}
 #overlay{
@@ -49,7 +54,7 @@ canvas{display:block; width:100%; height:100%; touch-action:none}
   background:color-mix(in srgb,var(--bg) 78%,transparent); backdrop-filter:blur(3px);
 }
 #overlay-title{font-size:30px; font-weight:700; color:var(--accent)}
-#overlay-hint{font-size:14px; color:var(--muted); max-width:300px}
+#overlay-hint{white-space:pre-line; font-size:14px; color:var(--muted); max-width:300px}
 
 .dpad{display:none; margin-top:16px; grid-template-columns:repeat(3,64px); grid-template-rows:repeat(2,56px); gap:8px; direction:ltr}
 .dpad button{
@@ -70,31 +75,36 @@ footer a:hover{text-decoration:underline}
 </head>
 <body>
 
-<h1>🐍 بازی مار</h1>
-<p class="sub">این بازی با پایتون نوشته شده و همین‌جا در مرورگر اجرا می‌شود (<code>PyScript</code>)</p>
+<h1>🐍 Snake</h1>
+<p class="sub">Written in Python, running right here in your browser with <code>PyScript</code></p>
 
 <div class="stats">
-  <div class="stat"><small>امتیاز</small><b id="score">0</b></div>
-  <div class="stat"><small>بهترین</small><b id="best">0</b></div>
+  <div class="stat"><small>Score</small><b id="score">0</b></div>
+  <div class="stat"><small>Best</small><b id="best">0</b></div>
+  <div class="stat"><small>Level</small><b id="level">1</b></div>
+</div>
+<div class="controls">
+  <button id="mode" type="button">Mode: Walls</button>
+  <button id="sound" type="button">Sound: On</button>
 </div>
 
 <div class="stage">
   <canvas id="board"></canvas>
   <div id="overlay">
-    <div id="overlay-title">در حال بارگذاری…</div>
-    <div id="overlay-hint">پایتون در مرورگر راه‌اندازی می‌شود، چند ثانیه صبر کن</div>
+    <div id="overlay-title">Loading…</div>
+    <div id="overlay-hint">Starting Python in your browser, this takes a few seconds</div>
   </div>
 </div>
 
 <div class="dpad">
-  <button class="up" data-dir="up" aria-label="بالا">▲</button>
-  <button class="left" data-dir="left" aria-label="چپ">◀</button>
-  <button class="down" data-dir="down" aria-label="پایین">▼</button>
-  <button class="right" data-dir="right" aria-label="راست">▶</button>
+  <button class="up" data-dir="up" aria-label="Up">▲</button>
+  <button class="left" data-dir="left" aria-label="Left">◀</button>
+  <button class="down" data-dir="down" aria-label="Down">▼</button>
+  <button class="right" data-dir="right" aria-label="Right">▶</button>
 </div>
 
 <footer>
-  <a href="game.py">دیدن کد پایتون بازی</a> ·
+  <a href="game.py">View the Python source</a> ·
   <a href="https://github.com/yousefalami" target="_blank" rel="noopener">GitHub</a>
 </footer>
 
