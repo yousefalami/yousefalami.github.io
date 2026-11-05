@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chess in Python</title>
+<meta name="description" content="Chess, written in Python and running in your browser with PyScript. Play the computer or a friend.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://pyscript.net/releases/2024.11.1/core.css">
+<script type="module" src="https://pyscript.net/releases/2024.11.1/core.js"></script>
+<style>
+:root{
+  --bg:#f6f5f2; --text:#1c1b19; --muted:#6c675f; --card:#ffffff; --line:#e4e1da; --accent:#2f7d43;
+  --light:#ecebd0; --dark:#6f9a5a; --sel:#f5e663; --last:rgba(245,230,99,.55); --dot:rgba(0,0,0,.22);
+  --check:#e8584c; --pw:#ffffff; --pb:#1b1a18;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#121311; --text:#eeeae2; --muted:#9a958b; --card:#1b1c1a; --line:#2c2d2a; --accent:#6fcf85;
+    --light:#b9bb98; --dark:#58774a; --sel:#d9cb4b; --last:rgba(217,203,75,.5); --dot:rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0; min-height:100%}
+body{
+  background:var(--bg); color:var(--text); font-family:"Inter",system-ui,sans-serif; line-height:1.6;
+  padding:max(16px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));
+  display:flex; flex-direction:column; align-items:center;
+}
+nav.games{display:flex; gap:6px; margin-bottom:6px}
+nav.games a{color:var(--muted); text-decoration:none; padding:3px 16px; border-radius:99px; font-size:14px; border:1px solid transparent}
+nav.games a:hover{color:var(--text)}
+nav.games a.on{color:var(--text); background:var(--card); border-color:var(--line); font-weight:600}
+h1{margin:6px 0 2px; font-size:28px}
+.sub{margin:0 0 14px; color:var(--muted); font-size:14px; text-align:center}
+.sub code{font-size:13px}
+
+.game{display:flex; flex-wrap:wrap; gap:18px; justify-content:center; align-items:flex-start; width:100%; max-width:900px}
+.boardwrap{--bw:min(560px,calc(100vw - 32px),calc(100dvh - 170px)); width:var(--bw)}
+.board{
+  width:var(--bw); height:var(--bw); display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(8,1fr);
+  border-radius:10px; overflow:hidden; border:1px solid var(--line); box-shadow:0 8px 30px rgba(0,0,0,.1);
+  -webkit-user-select:none; user-select:none;
+}
+.sq{position:relative; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  font-size:calc(var(--bw) / 8 * .8); line-height:1; background:var(--light)}
+.sq.dk{background:var(--dark)}
+.sq.last{box-shadow:inset 0 0 0 100px var(--last)}
+.sq.sel{box-shadow:inset 0 0 0 100px var(--sel)}
+.sq.chk{background:radial-gradient(circle,var(--check) 20%,transparent 75%),var(--light)}
+.sq.dk.chk{background:radial-gradient(circle,var(--check) 20%,transparent 75%),var(--dark)}
+.sq.tgt::after{content:""; position:absolute; width:28%; height:28%; border-radius:50%; background:var(--dot)}
+.sq.cap::after{content:""; position:absolute; inset:4%; border-radius:50%; border:calc(var(--bw)/8*.09) solid var(--dot); background:none; width:auto; height:auto}
+.sq.pw{color:var(--pw); text-shadow:0 0 2px #000,0 0 1px #000,0 1px 3px rgba(0,0,0,.6)}
+.sq.pb{color:var(--pb); text-shadow:0 0 1px rgba(255,255,255,.55)}
+.sq[data-file]::after, .sq[data-rank]::before{position:absolute; font-size:calc(var(--bw)/8*.17); line-height:1; font-weight:600; opacity:.75; pointer-events:none; text-shadow:none; color:var(--dark)}
+.sq.dk[data-file]::after, .sq.dk[data-rank]::before{color:var(--light)}
+.sq[data-file]::after{content:attr(data-file); right:5%; bottom:4%}
+.sq[data-rank]::before{content:attr(data-rank); left:5%; top:4%}
+.sq.tgt[data-file]::after, .sq.cap[data-file]::after{content:""}
+
+.panel{width:min(300px,100%); display:flex; flex-direction:column; gap:12px}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:12px 14px}
+#status{font-weight:600; font-size:16px; min-height:26px}
+#status.over{color:var(--accent)}
+.row{display:flex; gap:8px; align-items:center; margin-bottom:8px}
+.row label{font-size:13px; color:var(--muted); width:62px}
+select{font:inherit; font-size:14px; flex:1; color:var(--text); background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:3px 8px}
+.btns{display:flex; gap:8px; flex-wrap:wrap}
+button.b{font:inherit; font-size:14px; color:var(--text); background:var(--card); border:1px solid var(--line); border-radius:10px; padding:5px 14px; cursor:pointer}
+button.b:hover:not(:disabled){border-color:var(--accent)}
+button.b:disabled{opacity:.45; cursor:not-allowed}
+button.b.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+#moves{max-height:190px; overflow:auto; font-size:14px; font-variant-numeric:tabular-nums}
+#moves .mv{display:grid; grid-template-columns:34px 1fr 1fr; gap:4px; padding:1px 2px}
+#moves .mv span:first-child{color:var(--muted)}
+#moves .empty{color:var(--muted)}
+#moves .now{font-weight:700; color:var(--accent)}
+h2{font-size:13px; margin:0 0 6px; color:var(--muted); font-weight:600; text-transform:uppercase; letter-spacing:.05em}
+
+#promo{position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); z-index:10}
+#promo .box{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px 18px; text-align:center}
+#promo .opts{display:flex; gap:8px; margin-top:8px}
+#promo button{font-size:42px; line-height:1; width:64px; height:64px; border-radius:12px; border:1px solid var(--line); background:var(--light); cursor:pointer}
+#promo button:hover{border-color:var(--accent)}
+#promo button.pw{color:var(--pw); text-shadow:0 0 2px #000,0 0 1px #000}
+#promo button.pb{color:var(--pb)}
+
+footer{margin-top:22px; color:var(--muted); font-size:13px; text-align:center}
+footer a{color:var(--accent); text-decoration:none}
+footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<nav class="games" aria-label="Games">
+  <a href="index.html">Snake</a>
+  <a href="chess.html" class="on" aria-current="page">Chess</a>
+</nav>
+<h1>♞ Chess</h1>
+<p class="sub">Written in Python, running right here in your browser with <code>PyScript</code></p>
+
+<div class="game">
+  <div class="boardwrap">
+    <div class="board" id="board" aria-label="Chess board"></div>
+  </div>
+
+  <div class="panel">
+    <div class="card"><div id="status">Loading Python…</div></div>
+
+    <div class="card">
+      <div class="row"><label for="opp">Opponent</label>
+        <select id="opp"><option value="cpu">Computer</option><option value="two">Two players</option></select></div>
+      <div class="row" id="row-level"><label for="level">Level</label>
+        <select id="level"><option value="1">1 · Beginner</option><option value="2" selected>2 · Casual</option><option value="3">3 · Strong</option></select></div>
+      <div class="row" id="row-side"><label for="side">You play</label>
+        <select id="side"><option value="white">White</option><option value="black">Black</option><option value="random">Random</option></select></div>
+      <div class="btns">
+        <button class="b primary" id="new" type="button">New game</button>
+        <button class="b" id="undo" type="button">Undo</button>
+        <button class="b" id="flip" type="button">Flip board</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Moves</h2>
+      <div id="moves"><span class="empty">No moves yet</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="promo" role="dialog" aria-modal="true" aria-label="Choose promotion piece">
+  <div class="box"><div>Promote to</div><div class="opts" id="promo-opts"></div></div>
+</div>
+
+<footer>
+  <a href="chess_engine.py">Engine source</a> · <a href="chess_ui.py">Board UI source</a> ·
+  <a href="https://github.com/yousefalami" target="_blank" rel="noopener">GitHub</a>
+</footer>
+
+<script type="py" src="./chess_ui.py" config='{"files":{"./chess_engine.py":"./chess_engine.py"}}'></script>
+</body>
+</html>

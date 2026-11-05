@@ -32,6 +32,10 @@ body{
   padding:max(20px,env(safe-area-inset-top)) 16px max(20px,env(safe-area-inset-bottom));
   -webkit-user-select:none; user-select:none;
 }
+nav.games{display:flex; gap:6px; margin-bottom:6px}
+nav.games a{color:var(--muted); text-decoration:none; padding:3px 16px; border-radius:99px; font-size:14px; border:1px solid transparent}
+nav.games a:hover{color:var(--text)}
+nav.games a.on{color:var(--text); background:var(--card); border-color:var(--line); font-weight:600}
 h1{margin:8px 0 2px; font-size:28px}
 .sub{margin:0 0 16px; color:var(--muted); font-size:14px; text-align:center}
 .sub code{font-size:13px}
@@ -100,6 +104,10 @@ footer a:hover{text-decoration:underline}
 </head>
 <body>
 
+<nav class="games" aria-label="Games">
+  <a href="index.html" class="on" aria-current="page">Snake</a>
+  <a href="chess.html">Chess</a>
+</nav>
 <h1>🐍 Snake</h1>
 <p class="sub">Written in Python, running right here in your browser with <code>PyScript</code></p>
 
