@@ -1,0 +1,6 @@
+# GitHub Pages (Jekyll) settings.
+# Keep development-only files out of the published site.
+exclude:
+  - tests
+  - README.md
+  - LICENSE
