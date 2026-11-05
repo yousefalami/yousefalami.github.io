@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yousef Alami — Web & Python Developer</title>
+<meta name="description" content="Web developer (PHP, WordPress, SEO) and Python automation developer. Portfolio of skills and open-source work.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fafaf9; --surface:#ffffff; --text:#1c1917; --muted:#6b645d; --line:#e7e5e4;
+  --accent:#2563eb; --accent-soft:#e8efff; --chip:#f2f0ee;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#111110; --surface:#1a1918; --text:#f2efec; --muted:#a39d96; --line:#2c2a28;
+    --accent:#7aa2ff; --accent-soft:#1c2540; --chip:#242220;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111110; --surface:#1a1918; --text:#f2efec; --muted:#a39d96; --line:#2c2a28;
+  --accent:#7aa2ff; --accent-soft:#1c2540; --chip:#242220;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Inter","Vazirmatn",system-ui,sans-serif; line-height:1.75; font-size:16px;
+}
+html[lang="fa"] body{font-family:"Vazirmatn","Inter",system-ui,sans-serif}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:860px; margin:0 auto; padding:0 20px}
+header.bar{
+  position:sticky; top:0; z-index:5; background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(8px); border-bottom:1px solid var(--line);
+}
+.bar .wrap{display:flex; align-items:center; justify-content:space-between; height:56px; gap:12px}
+.bar nav{display:flex; gap:18px; font-size:14px}
+.bar nav a{color:var(--muted)}
+.bar nav a:hover{color:var(--text); text-decoration:none}
+.tools{display:flex; gap:8px}
+.btn{
+  font:inherit; font-size:13px; cursor:pointer; color:var(--text); background:var(--surface);
+  border:1px solid var(--line); border-radius:8px; padding:4px 12px;
+}
+.btn:hover{border-color:var(--accent)}
+@media(max-width:620px){.bar nav{display:none}}
+
+.hero{padding:72px 0 40px}
+.hero .tag{display:inline-block; font-size:13px; color:var(--accent); background:var(--accent-soft); padding:2px 12px; border-radius:99px; margin-bottom:18px}
+.hero h1{font-size:clamp(34px,6vw,52px); line-height:1.15; margin:0 0 10px; letter-spacing:-.02em}
+.hero .role{font-size:clamp(18px,3vw,22px); color:var(--muted); margin:0 0 22px}
+.hero p.lead{max-width:640px; margin:0 0 26px; font-size:17px}
+.cta{display:flex; gap:10px; flex-wrap:wrap}
+.cta a{padding:9px 18px; border-radius:10px; font-weight:500; font-size:15px; border:1px solid var(--line); background:var(--surface); color:var(--text)}
+.cta a.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+.cta a:hover{text-decoration:none; filter:brightness(1.06)}
+
+section{padding:40px 0; border-top:1px solid var(--line)}
+section h2{font-size:22px; margin:0 0 6px; letter-spacing:-.01em}
+section .sub{color:var(--muted); margin:0 0 24px; font-size:15px}
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:18px 20px}
+.card h3{font-size:16px; margin:0 0 6px}
+.card p{margin:0; color:var(--muted); font-size:14.5px; line-height:1.7}
+.card .meta{margin-top:10px; font-size:12.5px; color:var(--muted)}
+.card .meta span{background:var(--chip); border-radius:6px; padding:1px 8px; margin-inline-end:6px; display:inline-block; margin-bottom:4px}
+
+.skills{display:grid; gap:18px}
+.skills h3{font-size:14px; color:var(--muted); font-weight:500; margin:0 0 8px}
+.chips{display:flex; flex-wrap:wrap; gap:8px}
+.chip{background:var(--chip); border:1px solid var(--line); border-radius:99px; padding:3px 14px; font-size:14px;
+  font-family:"Inter","Vazirmatn",sans-serif}
+
+a.card{display:block; color:var(--text)}
+a.card:hover{text-decoration:none; border-color:var(--accent)}
+
+ul.clean{margin:0; padding-inline-start:20px}
+ul.clean li{margin-bottom:6px}
+
+footer{border-top:1px solid var(--line); padding:28px 0 48px; color:var(--muted); font-size:14px}
+[data-en]{display:none}
+html[lang="en"] [data-en]{display:revert}
+html[lang="en"] [data-fa]{display:none}
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <nav>
+      <a href="#about"><span data-fa>درباره</span><span data-en>About</span></a>
+      <a href="#services"><span data-fa>خدمات</span><span data-en>Services</span></a>
+      <a href="#skills"><span data-fa>مهارت‌ها</span><span data-en>Skills</span></a>
+      <a href="#projects"><span data-fa>پروژه‌ها</span><span data-en>Projects</span></a>
+    </nav>
+    <div class="tools">
+      <button class="btn" id="lang" type="button" aria-label="Switch language">EN</button>
+      <button class="btn" id="theme" type="button" aria-label="Toggle theme">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<div class="hero" id="about">
+  <span class="tag"><span data-fa>توسعه‌دهنده وب و پایتون</span><span data-en>Web &amp; Python developer</span></span>
+  <h1><span data-fa>یوسف عالمی</span><span data-en>Yousef Alami</span></h1>
+  <p class="role"><span data-fa>PHP · وردپرس · سئو · اتوماسیون با پایتون</span><span data-en>PHP · WordPress · SEO · Python automation</span></p>
+  <p class="lead">
+    <span data-fa>حدود ۴ سال است پروژه‌های وب را برای کارفرمایان ایرانی و خارجی از طراحی تا راه‌اندازی تحویل می‌دهم؛ سایت‌هایی سریع، امن و سئو‌شده. در کنار وب، با پایتون ابزار، اسکریپت و نرم‌افزار می‌سازم تا کارهای تکراری خودکار شوند.</span>
+    <span data-en>For about four years I've been delivering web projects for Iranian and international clients, from design to launch: fast, secure, SEO-ready sites. Alongside the web work, I build tools, scripts and software in Python that automate repetitive tasks.</span>
+  </p>
+  <div class="cta">
+    <a class="primary" href="https://github.com/yousefalami" target="_blank" rel="noopener">GitHub</a>
+    <a href="#projects"><span data-fa>نمونه‌کارهای متن‌باز</span><span data-en>Open-source work</span></a>
+  </div>
+</div>
+
+<section id="services">
+  <h2><span data-fa>چه کارهایی انجام می‌دهم</span><span data-en>What I do</span></h2>
+  <p class="sub"><span data-fa>از یک سایت سازمانی تا ابزار خودکار برای کارهای تکراری.</span><span data-en>From a company website to a tool that automates a repetitive job.</span></p>
+  <div class="grid">
+    <div class="card">
+      <h3><span data-fa>طراحی و توسعه وب‌سایت</span><span data-en>Website design &amp; development</span></h3>
+      <p><span data-fa>سایت از صفر تا صد با PHP و وردپرس، روی قالب آماده یا قالب اختصاصی، شامل فروشگاه با WooCommerce و صفحه‌ساز Elementor.</span><span data-en>End-to-end sites with PHP and WordPress, on ready-made or custom themes, including WooCommerce stores and Elementor builds.</span></p>
+    </div>
+    <div class="card">
+      <h3><span data-fa>قالب و پلاگین اختصاصی وردپرس</span><span data-en>Custom WordPress themes &amp; plugins</span></h3>
+      <p><span data-fa>وقتی افزونهٔ آماده کافی نیست، پلاگین یا قالب اختصاصی می‌نویسم که دقیقاً مطابق نیاز کسب‌وکار باشد.</span><span data-en>When an off-the-shelf plugin isn't enough, I write a custom theme or plugin that fits the business need exactly.</span></p>
+    </div>
+    <div class="card">
+      <h3><span data-fa>سئو و سرعت</span><span data-en>SEO &amp; performance</span></h3>
+      <p><span data-fa>سئوی فنی و محتوایی، اتصال به Google Search Console، و بهینه‌سازی سرعت بارگذاری.</span><span data-en>Technical and on-page SEO, Google Search Console setup, and page-speed optimisation.</span></p>
+    </div>
+    <div class="card">
+      <h3><span data-fa>سرور و امنیت</span><span data-en>Servers &amp; security</span></h3>
+      <p><span data-fa>کانفیگ سرور لینوکس و Docker، مدیریت پروژه روی سرور، امن و به‌روز نگه‌داشتن آن، و حفظ رتبه و دسترس‌پذیری سایت هنگام اختلال اینترنت.</span><span data-en>Linux and Docker server setup, running projects on the server, keeping it secure and updated, and protecting a site's ranking and availability during internet disruptions.</span></p>
+    </div>
+    <div class="card">
+      <h3><span data-fa>اتوماسیون و اسکرپینگ</span><span data-en>Automation &amp; scraping</span></h3>
+      <p><span data-fa>اسکریپت و ابزار پایتون برای جمع‌آوری داده، دانلود انبوه، پردازش فایل و خودکارسازی فرایندهای تکراری.</span><span data-en>Python scripts and tools for data collection, bulk downloading, file processing and automating repeatable workflows.</span></p>
+    </div>
+    <div class="card">
+      <h3><span data-fa>نرم‌افزار و API</span><span data-en>Software &amp; APIs</span></h3>
+      <p><span data-fa>سایت و API با FastAPI، نرم‌افزار ویندوزی با پایتون، و کنترل سخت‌افزار از طریق SDK.</span><span data-en>Sites and APIs with FastAPI, Windows desktop software in Python, and hardware control through vendor SDKs.</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <h2><span data-fa>مهارت‌ها</span><span data-en>Skills</span></h2>
+  <p class="sub"><span data-fa>ابزارهایی که روزانه با آن‌ها کار می‌کنم.</span><span data-en>The tools I work with day to day.</span></p>
+  <div class="skills">
+    <div>
+      <h3><span data-fa>وب و وردپرس</span><span data-en>Web &amp; WordPress</span></h3>
+      <div class="chips" dir="ltr">
+        <span class="chip">PHP</span><span class="chip">WordPress</span><span class="chip">WooCommerce</span><span class="chip">Elementor</span>
+        <span class="chip">Custom themes</span><span class="chip">Custom plugins</span><span class="chip">REST API</span>
+        <span class="chip">HTML</span><span class="chip">CSS</span><span class="chip">Bootstrap</span><span class="chip">JavaScript</span>
+      </div>
+    </div>
+    <div>
+      <h3><span data-fa>سئو و عملکرد</span><span data-en>SEO &amp; performance</span></h3>
+      <div class="chips" dir="ltr">
+        <span class="chip">Technical SEO</span><span class="chip">Google Search Console</span><span class="chip">Page speed</span><span class="chip">Web security</span>
+      </div>
+    </div>
+    <div>
+      <h3><span data-fa>پایتون</span><span data-en>Python</span></h3>
+      <div class="chips" dir="ltr">
+        <span class="chip">Python</span><span class="chip">FastAPI</span><span class="chip">Web scraping</span><span class="chip">Automation</span><span class="chip">Windows apps</span><span class="chip">Hardware SDKs</span>
+      </div>
+    </div>
+    <div>
+      <h3><span data-fa>زیرساخت و ابزار</span><span data-en>Infrastructure &amp; tooling</span></h3>
+      <div class="chips" dir="ltr">
+        <span class="chip">Linux</span><span class="chip">Docker</span><span class="chip">Server configuration</span><span class="chip">Networking</span><span class="chip">MySQL</span><span class="chip">Git</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <h2><span data-fa>پروژه‌های متن‌باز</span><span data-en>Open-source projects</span></h2>
+  <p class="sub"><span data-fa>چند ابزار کوچک و کاربردی که روی GitHub منتشر کرده‌ام. بیشتر کارهای مشتری‌ها خصوصی است و اینجا نمایش داده نمی‌شود.</span><span data-en>A few small, practical tools I've published on GitHub. Most client work is private and isn't shown here.</span></p>
+  <div class="grid">
+    <a class="card" href="https://github.com/yousefalami/iiif-downloader" target="_blank" rel="noopener">
+      <h3>iiif-downloader</h3>
+      <p><span data-fa>دانلود کتاب، دست‌نوشته و اسناد ارائه‌شده از طریق استاندارد IIIF.</span><span data-en>Download books, manuscripts and other documents served via IIIF.</span></p>
+      <div class="meta"><span>Python</span></div>
+    </a>
+    <a class="card" href="https://github.com/yousefalami/historydocumentsdownloader" target="_blank" rel="noopener">
+      <h3>historydocumentsdownloader</h3>
+      <p><span data-fa>استخراج متن و تصاویر اسناد تاریخی از یک آرشیو آنلاین فارسی و ذخیرهٔ آن‌ها به‌صورت PDF راست‌چین، با انتخاب فونت و حالت دانلود کامل کتاب.</span><span data-en>Extracts text and images of historical documents from a Persian online archive into right-to-left PDFs, with font choice and a whole-book mode.</span></p>
+      <div class="meta"><span>Python</span></div>
+    </a>
+    <a class="card" href="https://github.com/yousefalami/Economist-caption-downloader" target="_blank" rel="noopener">
+      <h3>Economist-caption-downloader</h3>
+      <p><span data-fa>اسکریپت سبک برای دانلود و ادغام زیرنویس‌های WebVTT بخش‌بخش‌شده در پخش‌کننده‌های مبتنی بر Brightcove.</span><span data-en>Lightweight script that downloads and merges segmented WebVTT captions from Brightcove-powered players.</span></p>
+      <div class="meta"><span>Python</span></div>
+    </a>
+    <a class="card" href="https://github.com/yousefalami/youtube-caption-downloader" target="_blank" rel="noopener">
+      <h3>youtube-caption-downloader</h3>
+      <p><span data-fa>تبدیل فایل زیرنویس خام یوتیوب (JSON3) به txt زمان‌دار، SRT و VTT خوانا.</span><span data-en>Converts raw YouTube caption downloads (JSON3) into readable timestamped txt, SRT and VTT files.</span></p>
+      <div class="meta"><span>Python</span></div>
+    </a>
+  </div>
+</section>
+
+<section id="approach">
+  <h2><span data-fa>روش کار</span><span data-en>How I work</span></h2>
+  <ul class="clean">
+    <li><span data-fa>تحویل کامل: طراحی، توسعه، سئو، راه‌اندازی روی سرور و تحویل نهایی.</span><span data-en>Full delivery: design, development, SEO, server launch and hand-off.</span></li>
+    <li><span data-fa>کد تمیز با Git؛ هر تغییر قابل پیگیری است.</span><span data-en>Clean code under Git, with every change traceable.</span></li>
+    <li><span data-fa>سرعت و امنیت از ابتدا در نظر گرفته می‌شود، نه بعد از تحویل.</span><span data-en>Speed and security are built in from the start, not bolted on afterwards.</span></li>
+    <li><span data-fa>ارتباط روشن و تحویل به‌موقع.</span><span data-en>Clear communication and on-time delivery.</span></li>
+  </ul>
+</section>
+
+<section id="languages">
+  <h2><span data-fa>زبان‌ها</span><span data-en>Languages</span></h2>
+  <div class="chips">
+    <span class="chip"><span data-fa>فارسی</span><span data-en>Persian</span></span>
+    <span class="chip"><span data-fa>ترکی آذربایجانی</span><span data-en>Azerbaijani</span></span>
+    <span class="chip"><span data-fa>ترکی استانبولی</span><span data-en>Turkish</span></span>
+    <span class="chip"><span data-fa>انگلیسی</span><span data-en>English</span></span>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <span data-fa>برای همکاری یا سؤال، از طریق <a href="https://github.com/yousefalami" target="_blank" rel="noopener">GitHub</a> پیام بدهید.</span>
+    <span data-en>For work or questions, reach out through <a href="https://github.com/yousefalami" target="_blank" rel="noopener">GitHub</a>.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  function safeGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+  function safeSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+  function setLang(l){
+    root.lang=l; root.dir=(l==="fa")?"rtl":"ltr";
+    document.getElementById("lang").textContent=(l==="fa")?"EN":"فا";
+    document.title=(l==="fa")?"یوسف عالمی — توسعه‌دهنده وب و پایتون":"Yousef Alami — Web & Python Developer";
+    safeSet("lang",l);
+  }
+  var saved=safeGet("lang");
+  setLang(saved==="en"||saved==="fa"?saved:"fa");
+  document.getElementById("lang").addEventListener("click",function(){
+    setLang(root.lang==="fa"?"en":"fa");
+  });
+
+  var st=safeGet("theme"); if(st==="light"||st==="dark") root.setAttribute("data-theme",st);
+  document.getElementById("theme").addEventListener("click",function(){
+    var dark=root.getAttribute("data-theme")==="dark" ||
+      (!root.getAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    var n=dark?"light":"dark"; root.setAttribute("data-theme",n); safeSet("theme",n);
+  });
+})();
+</script>
+</body>
+</html>
