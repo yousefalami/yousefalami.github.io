@@ -4,6 +4,7 @@ The game rules live in SnakeGame and know nothing about the browser, so they
 can be tested with plain Python. Everything below the "Browser UI" line only
 runs when the `pyscript` module is available.
 """
+import json
 import random
 from collections import deque
 
@@ -121,6 +122,51 @@ class SnakeGame:
             self.bonus_left = BONUS_LIFETIME
 
 
+# ------------------------------------------------------------- Score history
+LOG_LIMIT = 200   # keep the most recent games only
+NAME_MAX = 16
+
+
+def clean_name(name):
+    return (name or "").strip()[:NAME_MAX] or "Player"
+
+
+def add_entry(log, name, score, mode, ts):
+    """Return a new log with one finished game appended (oldest dropped past LOG_LIMIT)."""
+    entry = {"name": clean_name(name), "score": int(score), "mode": mode, "ts": ts}
+    return (list(log) + [entry])[-LOG_LIMIT:], entry
+
+
+def _rank_key(entry):
+    return (-entry["score"], entry["ts"])  # higher score first, earlier game wins ties
+
+
+def top_scores(log, mode, limit=10):
+    return sorted((e for e in log if e["mode"] == mode), key=_rank_key)[:limit]
+
+
+def rank_of(log, entry):
+    """1-based position of `entry` among all games played in the same mode."""
+    same = sorted((e for e in log if e["mode"] == entry["mode"]), key=_rank_key)
+    return next(i for i, e in enumerate(same, 1) if e is entry)
+
+
+def parse_log(text):
+    """Read a saved log; anything malformed is dropped instead of crashing the game."""
+    try:
+        data = json.loads(text)
+    except (TypeError, ValueError):
+        return []
+    good = []
+    for e in data if isinstance(data, list) else []:
+        try:
+            good.append({"name": clean_name(str(e["name"])), "score": int(e["score"]),
+                         "mode": "wrap" if e["mode"] == "wrap" else "walls", "ts": float(e["ts"])})
+        except (KeyError, TypeError, ValueError):
+            continue
+    return good[-LOG_LIMIT:]
+
+
 # ---------------------------------------------------------------- Browser UI
 try:
     from pyscript import document, window
@@ -161,6 +207,10 @@ if document is not None:
         return int(storage_get("snake-best-" + mode_key(), "0"))
 
     best = load_best()
+    log = parse_log(storage_get("snake-log", "[]"))
+    last_entry = None
+    best_at_start = best
+    log_view = "top"  # "top" | "recent"
 
     canvas = document.getElementById("board")
     ctx = canvas.getContext("2d")
@@ -172,6 +222,13 @@ if document is not None:
     level_el = document.getElementById("level")
     mode_btn = document.getElementById("mode")
     sound_btn = document.getElementById("sound")
+    name_el = document.getElementById("name")
+    log_title = document.getElementById("log-title")
+    log_body = document.getElementById("log-body")
+    tab_top = document.getElementById("tab-top")
+    tab_recent = document.getElementById("tab-recent")
+    clear_btn = document.getElementById("clear-log")
+    name_el.value = storage_get("snake-name", "")
 
     # ---- sound (tiny synthesized beeps, no audio files)
     audio = {"ctx": None}
@@ -304,6 +361,38 @@ if document is not None:
         mode_btn.textContent = "Mode: " + ("Wrap-around" if game.wrap else "Walls")
         sound_btn.textContent = "Sound: " + ("On" if sound_on else "Off")
         mode_btn.disabled = state == "running"
+        name_el.disabled = state == "running"
+
+    def fmt_date(ts):
+        return window.Date.new(ts).toLocaleDateString("en-GB")
+
+    def add_row(cells, highlight=False):
+        tr = document.createElement("tr")
+        if highlight:
+            tr.className = "me"
+        for text in cells:
+            td = document.createElement("td")
+            td.textContent = text  # textContent, so a player name can never inject HTML
+            tr.appendChild(td)
+        log_body.appendChild(tr)
+
+    def render_log():
+        log_body.replaceChildren()
+        tab_top.classList.toggle("on", log_view == "top")
+        tab_recent.classList.toggle("on", log_view == "recent")
+        if log_view == "top":
+            log_title.textContent = "Top scores · " + ("Wrap-around" if game.wrap else "Walls")
+            rows = top_scores(log, mode_key())
+        else:
+            log_title.textContent = "Recent games"
+            rows = list(reversed(log))[:15]
+        if not rows:
+            add_row(["", "No games yet. Play one!", "", "", ""])
+            return
+        for i, e in enumerate(rows, 1):
+            add_row([str(i) if log_view == "top" else "·", e["name"], str(e["score"]),
+                     "Wrap" if e["mode"] == "wrap" else "Walls", fmt_date(e["ts"])],
+                    highlight=e is last_entry)
 
     def show_overlay(title, hint):
         title_el.textContent = title
@@ -324,6 +413,16 @@ if document is not None:
             window.clearTimeout(timer)
             timer = None
 
+    def record_game():
+        """Save the finished game to the history and return its rank in this mode."""
+        global log, last_entry
+        if game.score == 0:
+            return None
+        log, last_entry = add_entry(log, name_el.value, game.score, mode_key(), window.Date.now())
+        storage_set("snake-log", json.dumps(log))
+        render_log()
+        return rank_of(log, last_entry)
+
     def tick(*_):
         global state, best
         game.step()
@@ -335,11 +434,12 @@ if document is not None:
         if not game.alive:
             state = "over"
             cancel()
+            rank = record_game()
+            where = f"  ·  #{rank} in {'Wrap-around' if game.wrap else 'Walls'}" if rank else ""
             if game.won:
-                show_overlay("You win! 🎉", "You filled the whole board. Press Space or tap to play again")
+                show_overlay("You win! 🎉", f"You filled the whole board{where}\nPress Space or tap to play again")
             else:
-                new_best = game.score > 0 and game.score == best
-                msg = f"Score: {game.score}" + ("  ·  New best!" if new_best else "")
+                msg = f"Score: {game.score}" + ("  ·  New best!" if game.score > best_at_start else "") + where
                 show_overlay("Game over", msg + "\nPress Space or tap to play again")
         else:
             schedule()
@@ -348,7 +448,8 @@ if document is not None:
     tick_proxy = create_proxy(tick)
 
     def start():
-        global state
+        global state, best_at_start
+        best_at_start = best  # to tell at the end whether this game beat the record
         game.reset()
         state = "running"
         hide_overlay()
@@ -386,6 +487,26 @@ if document is not None:
         game.reset()
         draw()
         update_hud()
+        render_log()
+
+    def set_view(view):
+        global log_view
+        log_view = view
+        render_log()
+
+    def clear_log():
+        global log, last_entry
+        if log and window.confirm("Delete all saved games from this browser?"):
+            log, last_entry = [], None
+            storage_set("snake-log", "[]")
+            render_log()
+
+    def on_name_input(*_):
+        storage_set("snake-name", name_el.value.strip())
+
+    def on_name_key(event):
+        if event.key == "Enter":
+            name_el.blur()
 
     def toggle_sound(*_):
         global sound_on
@@ -396,6 +517,8 @@ if document is not None:
 
     # ---- input
     def on_key(event):
+        if event.target.tagName == "INPUT":  # typing a name must not steer the snake
+            return
         if event.key in (" ", "Enter", "p", "P"):
             event.preventDefault()
             primary_action()
@@ -445,9 +568,15 @@ if document is not None:
     overlay.addEventListener("click", create_proxy(lambda e: primary_action()))
     mode_btn.addEventListener("click", on_button(toggle_mode))
     sound_btn.addEventListener("click", on_button(toggle_sound))
+    tab_top.addEventListener("click", on_button(lambda: set_view("top")))
+    tab_recent.addEventListener("click", on_button(lambda: set_view("recent")))
+    clear_btn.addEventListener("click", on_button(clear_log))
+    name_el.addEventListener("input", create_proxy(on_name_input))
+    name_el.addEventListener("keydown", create_proxy(on_name_key))
     for btn in document.querySelectorAll("[data-dir]"):
         btn.addEventListener("click", create_proxy(on_dpad))
 
     draw()
     update_hud()
+    render_log()
     show_overlay("Snake", "Press Space or tap to start\nArrow keys, WASD or swipe to move\nP pauses  ·  M switches mode")
